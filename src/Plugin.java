@@ -1,4 +1,4 @@
-package plugin;
+
 
 import javax.swing.JPanel;
 
