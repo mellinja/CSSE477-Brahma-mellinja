@@ -34,7 +34,7 @@
  * The code has been modified from its original version for this plugin application.
  * -Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
-
+package plugin;
 
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;

@@ -1,4 +1,4 @@
-
+package plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,8 +23,6 @@ public class PluginCore {
 	private HashMap<String, Plugin> idToPlugin;
 	private Plugin currentPlugin;
 	
-	// Plugin manager
-	PluginManager pluginManager;
 	
 	public PluginCore() {
 		idToPlugin = new HashMap<String, Plugin>();
@@ -73,7 +71,7 @@ public class PluginCore {
 				if(currentPlugin != null)
 					currentPlugin.stop();
 				
-				// The newly selected plugin is our current plugin
+				// The newly selected plu	gin is our current plugin
 				currentPlugin = plugin;
 				
 				// Clear previous working area
@@ -95,15 +93,7 @@ public class PluginCore {
 			}
 		});
 		
-		// Start the plugin manager now that the core is ready
-		try {
-			this.pluginManager = new PluginManager(this);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		Thread thread = new Thread(this.pluginManager);
-		thread.start();
+		
 	}
 	
 	public void start() {

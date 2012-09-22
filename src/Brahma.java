@@ -1,9 +1,15 @@
+package plugin;
 
+import java.io.IOException;
 
 public class Brahma {
 	public static void main(String args[]) {
-		PluginCore core = new PluginCore();
-		core.start();
+		try {
+			PluginManager p = new PluginManager();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
  	

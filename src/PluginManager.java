@@ -1,4 +1,4 @@
-
+package plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +16,13 @@ public class PluginManager implements Runnable {
 	private WatchDir watchDir;
 	private HashMap<Path, Plugin> pathToPlugin;
 
-	public PluginManager(PluginCore core) throws IOException {
-		this.core = core;
+	public PluginManager() throws IOException {
+		this.core = new PluginCore();
 		this.pathToPlugin = new HashMap<Path, Plugin>();
 		watchDir = new WatchDir(this, FileSystems.getDefault().getPath("plugins"), false);
+		Thread thread = new Thread(this);
+		thread.start();
+		core.start();
 	}
 
 	@Override
