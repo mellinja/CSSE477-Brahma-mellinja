@@ -55,6 +55,7 @@ public class PluginCore {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				// If the list is still updating, return
+				
 				if(e.getValueIsAdjusting())
 					return;
 				

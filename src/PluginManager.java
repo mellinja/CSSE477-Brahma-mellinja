@@ -42,6 +42,7 @@ public class PluginManager implements Runnable {
 		}
 		
 		// Listen for newly added plugins
+		System.out.println("testing");
 		watchDir.processEvents();
 	}
 
