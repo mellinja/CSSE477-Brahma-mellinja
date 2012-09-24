@@ -19,8 +19,8 @@ public class PluginCore {
 	private JLabel bottomLabel;
 	private JList sideList;
 	private DefaultListModel<String> listModel;
+	private JPanel topEnvelope;
 	private JPanel centerEnvelope;
-	
 	// For holding registered plugin
 	private HashMap<String, Plugin> idToPlugin;
 	private Plugin currentPluginLeft;
@@ -45,10 +45,13 @@ public class PluginCore {
 		scrollPane.setPreferredSize(new Dimension(100, 50));
 		
 		// Create center display area
+		topEnvelope = new JPanel (new BorderLayout());
+		topEnvelope.setBorder(BorderFactory.createLineBorder(Color.black, 5));
 		centerEnvelope = new JPanel (new BorderLayout());
 		centerEnvelope.setBorder(BorderFactory.createLineBorder(Color.black, 5));
 		
 		// Lets lay them out, contentPane by default has BorderLayout as its layout manager
+		contentPane.add(topEnvelope, BorderLayout.NORTH);
 		contentPane.add(centerEnvelope, BorderLayout.CENTER);
 		contentPane.add(scrollPane, BorderLayout.EAST);
 		contentPane.add(bottomLabel, BorderLayout.SOUTH);
@@ -121,11 +124,11 @@ public class PluginCore {
 					currentPluginLeft = plugin;
 					
 					// Clear previous working area
-					centerEnvelope.removeAll();
+					topEnvelope.removeAll();
 					
 					// Create new working area
 					JPanel centerPanel = new JPanel();
-					centerEnvelope.add(centerPanel, BorderLayout.WEST); 
+					topEnvelope.add(centerPanel, BorderLayout.CENTER); 
 					
 					// Ask plugin to layout the working area
 					currentPluginLeft.layout(centerPanel);
@@ -135,7 +138,7 @@ public class PluginCore {
 					// Start the plugin
 					currentPluginLeft.start();
 					
-					bottomLabel.setText("The " + currentPluginLeft.getId() + " is running!");
+					bottomLabel.setText("The " + currentPluginLeft.getId() + " is running on the left!");
 				}
 				else {
 					int index = ((JList)e.getSource()).locationToIndex(e.getPoint());
@@ -168,7 +171,7 @@ public class PluginCore {
 					// Start the plugin
 					currentPluginRight.start();
 					
-					bottomLabel.setText("The " + currentPluginRight.getId() + " is running!");
+					bottomLabel.setText("The " + currentPluginRight.getId() + " is running on the right!");
 				}
 				
 			}
