@@ -1,8 +1,9 @@
 package plugin;
 
-
 import javax.swing.JPanel;
 
+
+//Plugin is the base class for all plugins. By default, Plugins just run in the background without any display.
 public abstract class Plugin {
 	private String id;
 
@@ -19,7 +20,6 @@ public abstract class Plugin {
 	}
 
 	// Callback method
-	public abstract void layout(JPanel panel);
 	public abstract void start();
 	public abstract void stop();
 }
