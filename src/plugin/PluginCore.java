@@ -18,6 +18,7 @@ public class PluginCore {
 	private JFrame frame;
 	private JPanel contentPane;
 	private JLabel bottomLabel;
+	private JLabel defaultLabel;
 	private JList sideList;
 	private DefaultListModel<String> listModel;
 	private JPanel centerEnvelope;
@@ -37,8 +38,8 @@ public class PluginCore {
 
 		contentPane = (JPanel) frame.getContentPane();
 		contentPane.setPreferredSize(new Dimension(700, 500));
-		bottomLabel = new JLabel("No plugins registered yet!");
-
+		defaultLabel = new JLabel("No plugins registered yet!");
+		bottomLabel = defaultLabel;
 		listModel = new DefaultListModel<String>();
 		sideList = new JList(listModel);
 		sideList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -60,7 +61,7 @@ public class PluginCore {
 		contentPane.add(centerEnvelope, BorderLayout.CENTER);
 		contentPane.add(scrollPane, BorderLayout.EAST);
 		contentPane.add(bottomLabel, BorderLayout.SOUTH);
-
+		
 		// Add action listeners
 		sideList.addMouseListener(listMouseListener());
 	}
@@ -95,14 +96,15 @@ public class PluginCore {
 						((IVisualPlugin) currentPluginLeft)
 								.setLayout(leftPane);
 					}
+					if(currentPluginLeft instanceof ITextPlugin){
+						bottomLabel = ((ITextPlugin) currentPluginLeft).getTextLabel();
+					}
 					contentPane.revalidate();
 					contentPane.repaint();
 
 					// Start the plugin
 					currentPluginLeft.start();
-
-					bottomLabel.setText("The " + currentPluginLeft.getId()
-							+ " is running on the left!");
+					
 				} else {
 					int index = ((JList) e.getSource()).locationToIndex(e
 							.getPoint());
@@ -128,14 +130,15 @@ public class PluginCore {
 						((IVisualPlugin) currentPluginRight)
 								.setLayout(rightPane);
 					}
+					if(currentPluginRight instanceof ITextPlugin){
+						bottomLabel = ((ITextPlugin) currentPluginRight).getTextLabel();
+					}
 					contentPane.revalidate();
 					contentPane.repaint();
 
 					// Start the plugin
 					currentPluginRight.start();
-
-					bottomLabel.setText("The " + currentPluginRight.getId()
-							+ " is running on the right!");
+					
 				}
 
 			}
@@ -186,7 +189,7 @@ public class PluginCore {
 	public void addPlugin(Plugin plugin) {
 		this.idToPlugin.put(plugin.getId(), plugin);
 		this.listModel.addElement(plugin.getId());
-		this.bottomLabel.setText("The " + plugin.getId()
+		this.defaultLabel.setText("The " + plugin.getId()
 				+ " plugin has been recently added!");
 	}
 
@@ -197,7 +200,7 @@ public class PluginCore {
 		// Stop the plugin if it is still running
 		plugin.stop();
 
-		this.bottomLabel.setText("The " + plugin.getId()
+		this.defaultLabel.setText("The " + plugin.getId()
 				+ " plugin has been recently removed!");
 	}
 }
