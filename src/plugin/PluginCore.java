@@ -97,7 +97,13 @@ public class PluginCore {
 								.setLayout(leftPane);
 					}
 					if(currentPluginLeft instanceof ITextPlugin){
+						contentPane.remove(bottomLabel);
 						bottomLabel = ((ITextPlugin) currentPluginLeft).getTextLabel();
+						contentPane.add(bottomLabel,BorderLayout.SOUTH);
+					} else {
+						contentPane.remove(bottomLabel);
+						bottomLabel = defaultLabel;
+						contentPane.add(bottomLabel,BorderLayout.SOUTH);
 					}
 					contentPane.revalidate();
 					contentPane.repaint();
@@ -131,7 +137,13 @@ public class PluginCore {
 								.setLayout(rightPane);
 					}
 					if(currentPluginRight instanceof ITextPlugin){
+						contentPane.remove(bottomLabel);
 						bottomLabel = ((ITextPlugin) currentPluginRight).getTextLabel();
+						contentPane.add(bottomLabel,BorderLayout.SOUTH);
+					} else {
+						contentPane.remove(bottomLabel);
+						bottomLabel = defaultLabel;
+						contentPane.add(bottomLabel,BorderLayout.SOUTH);
 					}
 					contentPane.revalidate();
 					contentPane.repaint();
