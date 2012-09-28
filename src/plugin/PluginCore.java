@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
@@ -19,8 +20,9 @@ public class PluginCore {
 	private JLabel bottomLabel;
 	private JList sideList;
 	private DefaultListModel<String> listModel;
-	private JPanel topEnvelope;
 	private JPanel centerEnvelope;
+	private JPanel rightPane;
+	private JPanel leftPane;
 	// For holding registered plugin
 	private HashMap<String, Plugin> idToPlugin;
 	private Plugin currentPluginLeft;
@@ -45,23 +47,22 @@ public class PluginCore {
 		scrollPane.setPreferredSize(new Dimension(100, 50));
 
 		// Create center display area
-		topEnvelope = new JPanel(new BorderLayout());
-		topEnvelope.setBorder(BorderFactory.createLineBorder(Color.black, 5));
-		centerEnvelope = new JPanel(new BorderLayout());
-		centerEnvelope
-				.setBorder(BorderFactory.createLineBorder(Color.black, 5));
-
-		// Lets lay them out, contentPane by default has BorderLayout as its
-		// layout manager
-		contentPane.add(topEnvelope, BorderLayout.NORTH);
+		centerEnvelope = new JPanel(new GridLayout(1,2));
+		centerEnvelope.setBorder(BorderFactory.createLineBorder(Color.black, 5));
+		
+		rightPane = new JPanel(new BorderLayout());
+		leftPane = new JPanel(new BorderLayout());
+		
+		centerEnvelope.add(rightPane);
+		centerEnvelope.add(leftPane);
+		
+		// Lets lay them out, contentPane by default has BorderLayout as its layout manager
 		contentPane.add(centerEnvelope, BorderLayout.CENTER);
 		contentPane.add(scrollPane, BorderLayout.EAST);
 		contentPane.add(bottomLabel, BorderLayout.SOUTH);
 
 		// Add action listeners
-
 		sideList.addMouseListener(listMouseListener());
-
 	}
 
 	public MouseListener listMouseListener() {
@@ -87,16 +88,12 @@ public class PluginCore {
 					currentPluginLeft = plugin;
 
 					// Clear previous working area
-					topEnvelope.removeAll();
-
-					// Create new working area
-					JPanel centerPanel = new JPanel();
-					topEnvelope.add(centerPanel, BorderLayout.CENTER);
+					leftPane.removeAll();
 
 					// Ask plugin to layout the working area
 					if (currentPluginLeft instanceof IVisualPlugin) {
 						((IVisualPlugin) currentPluginLeft)
-								.setLayout(centerPanel);
+								.setLayout(leftPane);
 					}
 					contentPane.revalidate();
 					contentPane.repaint();
@@ -124,16 +121,12 @@ public class PluginCore {
 					currentPluginRight = plugin;
 
 					// Clear previous working area
-					centerEnvelope.removeAll();
-
-					// Create new working area
-					JPanel centerPanel = new JPanel();
-					centerEnvelope.add(centerPanel, BorderLayout.EAST);
+					rightPane.removeAll();
 
 					// Ask plugin to layout the working area
 					if (currentPluginRight instanceof IVisualPlugin) {
 						((IVisualPlugin) currentPluginRight)
-								.setLayout(centerPanel);
+								.setLayout(rightPane);
 					}
 					contentPane.revalidate();
 					contentPane.repaint();
