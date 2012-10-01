@@ -5,31 +5,50 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 
 public class PluginCore {
 	// GUI Widgets that we will need
+	private final static int DEL_CODE = 127;
+
 	private JFrame frame;
 	private JPanel contentPane;
 	private JLabel bottomLabel;
 	private JLabel defaultLabel;
-	private JList sideList;
+	private JList availablePluginsList;
 	private DefaultListModel<String> listModel;
+	private DefaultListModel<String> runningPluginsListModel;
 	private JPanel centerEnvelope;
 	private JPanel rightPane;
 	private JPanel leftPane;
 	// For holding registered plugin
 	private HashMap<String, Plugin> idToPlugin;
-	private Plugin currentPluginLeft;
 	private Plugin currentPluginRight;
+	private Plugin currentPluginLeft;
+	private Plugin currentTextPlugin;
+	private ArrayList<Plugin> backgroundPlugins;
+	private JList runningPluginsList;
+	private JPanel sideListEnvelope;
 
 	public PluginCore() {
+		backgroundPlugins = new ArrayList<Plugin>();
 		idToPlugin = new HashMap<String, Plugin>();
 
 		// Lets create the elements that we will need
@@ -41,117 +60,193 @@ public class PluginCore {
 		defaultLabel = new JLabel("No plugins registered yet!");
 		bottomLabel = defaultLabel;
 		listModel = new DefaultListModel<String>();
-		sideList = new JList(listModel);
-		sideList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		sideList.setLayoutOrientation(JList.VERTICAL);
-		JScrollPane scrollPane = new JScrollPane(sideList);
-		scrollPane.setPreferredSize(new Dimension(100, 50));
 
+		availablePluginsList = new JList(listModel);
+		availablePluginsList
+				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		availablePluginsList.setLayoutOrientation(JList.VERTICAL);
+		JScrollPane availablePluginPane = new JScrollPane(availablePluginsList);
+		availablePluginPane.setPreferredSize(new Dimension(100, 50));
+
+		runningPluginsListModel = new DefaultListModel<String>();
+		runningPluginsList = new JList(runningPluginsListModel);
+		runningPluginsList
+				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		runningPluginsList.setLayoutOrientation(JList.VERTICAL);
+		JScrollPane runningPluginPane = new JScrollPane(runningPluginsList);
+		runningPluginPane.setPreferredSize(new Dimension(100, 50));
+
+		sideListEnvelope = new JPanel(new GridLayout(2, 1));
+		sideListEnvelope.add(availablePluginPane);
+		sideListEnvelope.add(runningPluginPane);
 		// Create center display area
-		centerEnvelope = new JPanel(new GridLayout(1,2));
-		centerEnvelope.setBorder(BorderFactory.createLineBorder(Color.black, 5));
-		
+		centerEnvelope = new JPanel(new GridLayout(1, 2));
+		centerEnvelope
+				.setBorder(BorderFactory.createLineBorder(Color.black, 5));
+
 		rightPane = new JPanel(new BorderLayout());
 		leftPane = new JPanel(new BorderLayout());
-		
+
 		centerEnvelope.add(rightPane);
 		centerEnvelope.add(leftPane);
-		
-		// Lets lay them out, contentPane by default has BorderLayout as its layout manager
+
+		// Lets lay them out, contentPane by default has BorderLayout as its
+		// layout manager
 		contentPane.add(centerEnvelope, BorderLayout.CENTER);
-		contentPane.add(scrollPane, BorderLayout.EAST);
+		contentPane.add(sideListEnvelope, BorderLayout.EAST);
 		contentPane.add(bottomLabel, BorderLayout.SOUTH);
-		
+
 		// Add action listeners
-		sideList.addMouseListener(listMouseListener());
+		availablePluginsList.addMouseListener(availablePluginMouseListener());
+		runningPluginsList.addMouseListener(runningPluginMouseListener());
+		runningPluginsList.addKeyListener(keyListener());
+		runningPluginsList.setFocusable(true);
 	}
 
-	public MouseListener listMouseListener() {
+	private KeyListener keyListener() {
+		return new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == DEL_CODE && !backgroundPlugins.isEmpty()) {
+					int index = runningPluginsList.getSelectedIndex();
+					if (index == -1)
+						return;
+					Plugin plugin = backgroundPlugins.get(index);
+					plugin.stop();
+					backgroundPlugins.remove(index);
+					runningPluginsListModel.removeElement(plugin.getId());
+					if (currentPluginLeft == plugin) {
+						currentPluginLeft = null;
+					}
+					if (currentPluginRight == plugin) {
+						currentPluginRight = null;
+					}
+					if (currentTextPlugin == plugin) {
+						currentTextPlugin = null;
+					}
+				}
+			}
+		};
+	}
+
+	public MouseListener availablePluginMouseListener() {
 		return new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
-					int index = ((JList) e.getSource()).locationToIndex(e
-							.getPoint());
+				int index = ((JList) e.getSource()).locationToIndex(e
+						.getPoint());
 
-					String id = listModel.elementAt(index);
-					Plugin plugin = idToPlugin.get(id);
+				String id = listModel.elementAt(index);
+				Plugin plugin = idToPlugin.get(id);
 
-					if (plugin == null || plugin.equals(currentPluginLeft))
-						return;
+				runningPluginsListModel.addElement(plugin.getId());
 
-					// Stop previously running plugin
-					if (currentPluginLeft != null)
-						currentPluginLeft.stop();
+				backgroundPlugins.add(plugin);
+				if (plugin instanceof IVisualPlugin) {
+					((IVisualPlugin) plugin).setLayout(new JPanel());
+				}
+				plugin.start();
 
-					// The newly selected plu gin is our current plugin
-					currentPluginLeft = plugin;
+			}
 
-					// Clear previous working area
-					leftPane.removeAll();
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
 
-					// Ask plugin to layout the working area
-					if (currentPluginLeft instanceof IVisualPlugin) {
-						((IVisualPlugin) currentPluginLeft)
-								.setLayout(leftPane);
-					}
-					if(currentPluginLeft instanceof ITextPlugin){
-						contentPane.remove(bottomLabel);
-						bottomLabel = ((ITextPlugin) currentPluginLeft).getTextLabel();
-						contentPane.add(bottomLabel,BorderLayout.SOUTH);
-					} else {
-						contentPane.remove(bottomLabel);
-						bottomLabel = defaultLabel;
-						contentPane.add(bottomLabel,BorderLayout.SOUTH);
-					}
-					contentPane.revalidate();
-					contentPane.repaint();
+			}
 
-					// Start the plugin
-					currentPluginLeft.start();
-					
-				} else {
-					int index = ((JList) e.getSource()).locationToIndex(e
-							.getPoint());
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
 
-					String id = listModel.elementAt(index);
-					Plugin plugin = idToPlugin.get(id);
+			}
 
-					if (plugin == null || plugin.equals(currentPluginLeft))
-						return;
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
 
-					// Stop previously running plugin
-					if (currentPluginRight != null)
-						currentPluginRight.stop();
+			}
 
-					// The newly selected plu gin is our current plugin
-					currentPluginRight = plugin;
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
 
-					// Clear previous working area
-					rightPane.removeAll();
+			}
+		};
 
-					// Ask plugin to layout the working area
-					if (currentPluginRight instanceof IVisualPlugin) {
+	}
+
+	public MouseListener runningPluginMouseListener() {
+		return new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (backgroundPlugins.isEmpty())
+					return;
+				int index = ((JList) e.getSource()).locationToIndex(e
+						.getPoint());
+
+				Plugin plugin = backgroundPlugins.get(index);
+
+				if (plugin instanceof ITextPlugin) {
+					contentPane.remove(bottomLabel);
+					bottomLabel = ((ITextPlugin) plugin).getTextLabel();
+					contentPane.add(bottomLabel, BorderLayout.SOUTH);
+				}
+				if (plugin instanceof IVisualPlugin) {
+					if (SwingUtilities.isRightMouseButton(e)) {
+						System.out.println("Right");
+						if (plugin == null || plugin.equals(currentPluginRight))
+							return;
+
+						// Stop previously running plugin
+						if (currentPluginRight != null)
+							((IVisualPlugin) currentPluginRight)
+									.setLayout(new JPanel());
+						// The newly selected plu gin is our current plugin
+						currentPluginRight = plugin;
+
+						// Clear previous working area
+						rightPane.removeAll();
+
+						// Ask plugin to layout the working area
 						((IVisualPlugin) currentPluginRight)
 								.setLayout(rightPane);
-					}
-					if(currentPluginRight instanceof ITextPlugin){
-						contentPane.remove(bottomLabel);
-						bottomLabel = ((ITextPlugin) currentPluginRight).getTextLabel();
-						contentPane.add(bottomLabel,BorderLayout.SOUTH);
-					} else {
-						contentPane.remove(bottomLabel);
-						bottomLabel = defaultLabel;
-						contentPane.add(bottomLabel,BorderLayout.SOUTH);
-					}
-					contentPane.revalidate();
-					contentPane.repaint();
 
-					// Start the plugin
-					currentPluginRight.start();
-					
+					} else {
+						if (plugin == null || plugin.equals(currentPluginLeft))
+							return;
+
+						// Stop previously running plugin
+						if (currentPluginLeft != null)
+							((IVisualPlugin) currentPluginLeft)
+									.setLayout(new JPanel());
+						// The newly selected plu gin is our current plugin
+						currentPluginLeft = plugin;
+
+						// Clear previous working area
+						leftPane.removeAll();
+
+						// Ask plugin to layout the working area
+						((IVisualPlugin) currentPluginLeft).setLayout(leftPane);
+					}
 				}
+				contentPane.revalidate();
+				contentPane.repaint();
+				plugin.start();
 
 			}
 

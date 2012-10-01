@@ -43,7 +43,6 @@ public class PluginManager implements Runnable {
 		}
 		
 		// Listen for newly added plugins
-		System.out.println("testing");
 		watchDir.processEvents();
 	}
 
@@ -63,7 +62,6 @@ public class PluginManager implements Runnable {
         	System.out.println(u.toString());
         }
         ClassLoader classLoader = new URLClassLoader(urls);
-        System.out.println(className);
         Class<?> pluginClass = classLoader.loadClass(className);
         
         // Create a new instance of the plugin class and add to the core

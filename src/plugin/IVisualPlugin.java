@@ -8,5 +8,5 @@ public interface IVisualPlugin {
 	
 	//Set the JPanel that your plugin uses to display visual elements
 	public void setLayout(JPanel panel);
-
+	
 }
