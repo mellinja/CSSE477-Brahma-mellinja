@@ -129,13 +129,19 @@ public class PluginCore {
 					runningPluginsListModel.removeElement(plugin.getId());
 					if (currentPluginLeft == plugin) {
 						currentPluginLeft = null;
+						leftPane.removeAll();
 					}
 					if (currentPluginRight == plugin) {
 						currentPluginRight = null;
+						rightPane.removeAll();
 					}
 					if (currentTextPlugin == plugin) {
 						currentTextPlugin = null;
+						bottomLabel = defaultLabel;
 					}
+					
+					contentPane.revalidate();
+					contentPane.repaint();
 				}
 			}
 		};
@@ -208,7 +214,6 @@ public class PluginCore {
 				}
 				if (plugin instanceof IVisualPlugin) {
 					if (SwingUtilities.isRightMouseButton(e)) {
-						System.out.println("Right");
 						if (plugin == null || plugin.equals(currentPluginRight))
 							return;
 
@@ -246,7 +251,6 @@ public class PluginCore {
 				}
 				contentPane.revalidate();
 				contentPane.repaint();
-				plugin.start();
 
 			}
 
