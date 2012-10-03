@@ -7,6 +7,7 @@ import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -23,6 +24,16 @@ public class PluginManager implements Runnable {
 		Thread thread = new Thread(this);
 		thread.start();
 		core.start();
+		
+		System.out.println((new String[]{"This", "Is","An","Array"}));
+		for(int i = 0; i < 10; i++){
+			for(int j = 0; j < 10; j++){
+				if(j == 5){
+					break;
+				}
+				System.out.println(j);
+			}
+		}
 	}
 
 	@Override
@@ -36,6 +47,7 @@ public class PluginManager implements Runnable {
 				for(File f : files) {
 					this.loadBundle(f.toPath());
 				}
+				handleDependencies();
 			}
 		}
 		catch(Exception e) {
@@ -44,6 +56,12 @@ public class PluginManager implements Runnable {
 		
 		// Listen for newly added plugins
 		watchDir.processEvents();
+	}
+	
+	public void handleDependencies(){
+		 for(Plugin plugin : core.idToPlugin.values()){
+			 System.out.println(plugin.getId());
+		 }
 	}
 
 	void loadBundle(Path bundlePath) throws Exception {
