@@ -24,16 +24,6 @@ public class PluginManager implements Runnable {
 		Thread thread = new Thread(this);
 		thread.start();
 		core.start();
-		
-		System.out.println((new String[]{"This", "Is","An","Array"}));
-		for(int i = 0; i < 10; i++){
-			for(int j = 0; j < 10; j++){
-				if(j == 5){
-					break;
-				}
-				System.out.println(j);
-			}
-		}
 	}
 
 	@Override
