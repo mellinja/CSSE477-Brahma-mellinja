@@ -139,7 +139,7 @@ public class PluginCore {
 						currentTextPlugin = null;
 						bottomLabel = defaultLabel;
 					}
-					
+
 					contentPane.revalidate();
 					contentPane.repaint();
 				}
@@ -157,6 +157,8 @@ public class PluginCore {
 
 				String id = listModel.elementAt(index);
 				Plugin plugin = idToPlugin.get(id);
+				if (runningPluginsListModel.contains(plugin.getId()))
+					return;
 
 				runningPluginsListModel.addElement(plugin.getId());
 
@@ -217,6 +219,16 @@ public class PluginCore {
 						if (plugin == null || plugin.equals(currentPluginRight))
 							return;
 
+						// If the left plugin is the same as this plugin, stop
+						// it.
+						if (currentPluginLeft != null
+								&& currentPluginLeft.getId() == plugin.getId()) {
+							((IVisualPlugin) currentPluginLeft)
+									.setLayout(new JPanel());
+							leftPane.removeAll();
+							currentPluginLeft = null;
+						}
+
 						// Stop previously running plugin
 						if (currentPluginRight != null)
 							((IVisualPlugin) currentPluginRight)
@@ -234,6 +246,16 @@ public class PluginCore {
 					} else {
 						if (plugin == null || plugin.equals(currentPluginLeft))
 							return;
+
+						// If the right plugin is the same as this plugin, stop
+						// it.
+						if (currentPluginRight != null
+								&& currentPluginRight.getId() == plugin.getId()) {
+							((IVisualPlugin) currentPluginRight)
+									.setLayout(new JPanel());
+							rightPane.removeAll();
+							currentPluginRight = null;
+						}
 
 						// Stop previously running plugin
 						if (currentPluginLeft != null)
