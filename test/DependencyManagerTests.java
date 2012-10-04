@@ -1,26 +1,69 @@
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import plugin.DependencyManager;
+import plugin.DependencyManager.Wrapper;
+import plugin.Plugin;
 
 public class DependencyManagerTests {
 
-	private DependencyManager classUnderTest;
+	private DependencyManager dependencyManager;
 	
+	private Plugin dummyPluginOne;
+	private Plugin dummyPluginTwo;
+	private Wrapper wrapperOne;
+	private Wrapper wrapperTwo;
+	
+	static String dummyOneId = "One";
+	static String dummyTwoId = "Two";
+	public void init(){
+		dummyPluginOne = new DummyPluginOne(dummyOneId);
+		dummyPluginTwo = new DummyPluginTwo(dummyTwoId);
+		
+		dependencyManager = new DependencyManager();
+	}
 	
 	@Test
-	public void testAdd() {
-		fail("Not yet implemented");
+	public void testAddingPluginWithNoDependenciesLoadsSuccessfully() {
+		wrapperOne = new Wrapper(dummyPluginOne)
 	}
 
 	@Test
 	public void testCheckDependenciesAreMet() {
 		fail("Not yet implemented");
 	}
+	
+	
+	class DummyPluginOne extends Plugin {
 
-	@Test
-	public void testRemove() {
-		fail("Not yet implemented");
+		public DummyPluginOne(String id) {
+			super(id);
+		}
+
+		@Override
+		public void start() {}
+
+		@Override
+		public void stop() {}
 	}
+	
+	class DummyPluginTwo extends Plugin {
 
+		public DummyPluginTwo(String id) {
+			super(id);
+		}
+
+		@Override
+		public void start() {
+			
+		}
+
+		@Override
+		public void stop() {
+			
+		}
+	
+	}
+	
 }
