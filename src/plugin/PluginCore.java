@@ -87,8 +87,8 @@ public class PluginCore {
 		rightPane = new JPanel(new BorderLayout());
 		leftPane = new JPanel(new BorderLayout());
 
-		centerEnvelope.add(rightPane);
 		centerEnvelope.add(leftPane);
+		centerEnvelope.add(rightPane);
 
 		// Lets lay them out, contentPane by default has BorderLayout as its
 		// layout manager
@@ -137,7 +137,9 @@ public class PluginCore {
 					}
 					if (currentTextPlugin == plugin) {
 						currentTextPlugin = null;
+						contentPane.remove(bottomLabel);
 						bottomLabel = defaultLabel;
+						contentPane.add(bottomLabel, BorderLayout.SOUTH);
 					}
 
 					contentPane.revalidate();
@@ -210,6 +212,7 @@ public class PluginCore {
 				Plugin plugin = backgroundPlugins.get(index);
 
 				if (plugin instanceof ITextPlugin) {
+					currentTextPlugin = plugin;
 					contentPane.remove(bottomLabel);
 					bottomLabel = ((ITextPlugin) plugin).getTextLabel();
 					contentPane.add(bottomLabel, BorderLayout.SOUTH);

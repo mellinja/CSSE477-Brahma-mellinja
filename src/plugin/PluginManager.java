@@ -60,10 +60,7 @@ public class PluginManager implements Runnable {
 		// Get hold of the Plugin-Class attribute and load the class
 		String className = mainAttribs.getValue("Plugin-Class");
 		URL[] urls = new URL[] { bundlePath.toUri().toURL() };
-		for (URL u : urls) {
-			System.out.println(u.toString());
-			System.out.flush();
-		}
+		
 		ClassLoader classLoader;
 		if(urlLoader == null){
 			urlLoader = new URLClassLoader(urls);
@@ -77,13 +74,7 @@ public class PluginManager implements Runnable {
 		String dependency = mainAttribs.getValue("Dependency");
 		String[] dependencies = dependency==null?null : dependency.split("[,]");
 		
-		String interfaces = mainAttribs.getValue("Interfaces");
-		if(interfaces != null){
-			for(String s:interfaces.split("[,]")){
-				System.out.println(classLoader.loadClass(s).isInterface());
-				System.out.println("Interface: " + s);
-			}
-		}
+		
 		// Create a new instance of the plugin class and add to the core
 		Plugin plugin = (Plugin) pluginClass.newInstance();
 		this.manager.add(dependencies, plugin);
