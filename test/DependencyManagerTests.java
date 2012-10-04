@@ -1,4 +1,9 @@
+import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 
@@ -12,32 +17,74 @@ public class DependencyManagerTests {
 	
 	private Plugin dummyPluginOne;
 	private Plugin dummyPluginTwo;
-	private Wrapper wrapperOne;
-	private Wrapper wrapperTwo;
+	private Plugin dummyPluginThree;
 	
 	static String dummyOneId = "One";
 	static String dummyTwoId = "Two";
+	static String dummyThreeId = "Three";
+	
 	public void init(){
-		dummyPluginOne = new DummyPluginOne(dummyOneId);
-		dummyPluginTwo = new DummyPluginTwo(dummyTwoId);
+		dummyPluginOne = new DummyPlugin(dummyOneId);
+		dummyPluginTwo = new DummyPlugin(dummyTwoId);
+		dummyPluginThree = new DummyPlugin(dummyThreeId);
 		
 		dependencyManager = new DependencyManager();
 	}
 	
 	@Test
 	public void testAddingPluginWithNoDependenciesLoadsSuccessfully() {
-		wrapperOne = new Wrapper(dummyPluginOne)
+		init();
+		
+		assertEquals(true, dependencyManager.getRunningPlugins().isEmpty());
+		dependencyManager.add(null, dummyPluginOne);
+		assertEquals(false, dependencyManager.getRunningPlugins().isEmpty());
 	}
-
+	
 	@Test
-	public void testCheckDependenciesAreMet() {
-		fail("Not yet implemented");
+	public void testAddingPluginWithUnloadedDependenciesGoesIdle(){
+		init();
+		
+		assertEquals(true, dependencyManager.getIdlePlugins().isEmpty());
+		assertEquals(true, dependencyManager.getRunningPlugins().isEmpty());
+		dependencyManager.add(new String[]{dummyTwoId}, dummyPluginOne);
+		assertEquals(true, dependencyManager.getRunningPlugins().isEmpty());
+		assertEquals(false, dependencyManager.getIdlePlugins().isEmpty());
 	}
 	
+	@Test
+	public void testAddingPluginOthersDependOnStartsRunningTheIdlePlugins(){
+		init();
+		
+		assertEquals(0, dependencyManager.getIdlePlugins().size());
+		assertEquals(0, dependencyManager.getRunningPlugins().size());
+		dependencyManager.add(new String[]{dummyTwoId}, dummyPluginOne);
+		assertEquals(0, dependencyManager.getRunningPlugins().size());
+		assertEquals(1, dependencyManager.getIdlePlugins().size());
+		dependencyManager.add(new String[]{}, dummyPluginTwo);
+		assertEquals(2, dependencyManager.getRunningPlugins().size());
+		assertEquals(0, dependencyManager.getIdlePlugins().size());
+	}
 	
-	class DummyPluginOne extends Plugin {
+	@Test
+	public void testAddingPluginThatHasDependencyThenAddingPluginThatDependsOnItThenAddingPluginTheFirstPluginDependsOnLoadsAllSuccessfully(){
+		init();
+		
+		assertEquals(0, dependencyManager.getIdlePlugins().size());
+		assertEquals(0, dependencyManager.getRunningPlugins().size());
+		dependencyManager.add(new String[]{dummyOneId}, dummyPluginTwo);
+		assertEquals(0, dependencyManager.getRunningPlugins().size());
+		assertEquals(1, dependencyManager.getIdlePlugins().size());
+		dependencyManager.add(new String[]{dummyTwoId}, dummyPluginThree);
+		assertEquals(0, dependencyManager.getRunningPlugins().size());
+		assertEquals(2, dependencyManager.getIdlePlugins().size());
+		dependencyManager.add(new String[]{}, dummyPluginOne);
+		assertEquals(3, dependencyManager.getRunningPlugins().size());
+		assertEquals(0, dependencyManager.getIdlePlugins().size());
+	}
+	
+	class DummyPlugin extends Plugin {
 
-		public DummyPluginOne(String id) {
+		public DummyPlugin(String id) {
 			super(id);
 		}
 
@@ -46,24 +93,9 @@ public class DependencyManagerTests {
 
 		@Override
 		public void stop() {}
-	}
-	
-	class DummyPluginTwo extends Plugin {
-
-		public DummyPluginTwo(String id) {
-			super(id);
-		}
 
 		@Override
-		public void start() {
-			
-		}
-
-		@Override
-		public void stop() {
-			
-		}
-	
+		public void setOtherPlugins(ArrayList<Plugin> plugins) {}
 	}
 	
 }
