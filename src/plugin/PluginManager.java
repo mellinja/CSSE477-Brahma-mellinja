@@ -16,6 +16,7 @@ public class PluginManager implements Runnable {
 	private DependencyManager manager;
 	private WatchDir watchDir;
 	private HashMap<Path, Plugin> pathToPlugin;
+	private ArrayList<Object> interfaceList = new ArrayList<>();
 
 	public PluginManager() throws IOException {
 		this.manager = new DependencyManager(new PluginCore());
@@ -59,17 +60,26 @@ public class PluginManager implements Runnable {
 		String className = mainAttribs.getValue("Plugin-Class");
 		URL[] urls = new URL[] { bundlePath.toUri().toURL() };
 		for (URL u : urls) {
-			System.out.println(u.toString());
+			//System.out.println(u.toString());
 		}
 		ClassLoader classLoader = new URLClassLoader(urls);
 		Class<?> pluginClass = classLoader.loadClass(className);
-
+		
 		String dependency = mainAttribs.getValue("Dependency");
 		String[] dependencies = dependency==null?null : dependency.split("[,]");
+		
+		String interfaces = mainAttribs.getValue("Interfaces");
+		if(interfaces != null){
+			for(String s:interfaces.split("[,]")){
+				interfaceList.add(classLoader.loadClass(s));
+				System.out.println("Interface: " + s);
+			}
+		}
 		// Create a new instance of the plugin class and add to the core
 		Plugin plugin = (Plugin) pluginClass.newInstance();
 		this.manager.add(dependencies, plugin);
 		this.pathToPlugin.put(bundlePath, plugin);
+		
 
 		// Release the jar resources
 		jarFile.close();

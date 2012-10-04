@@ -36,7 +36,6 @@ public class DependencyManager {
 		if (checkDependenciesAreMet(newWrapper)) {
 			runningPlugins.add(newWrapper);
 			if (core != null){
-				p.setOtherPlugins(getRunningPluginsArray());
 				core.addPlugin(p);}
 			ArrayList<Wrapper> toAdd;
 			do {
@@ -49,7 +48,6 @@ public class DependencyManager {
 				runningPlugins.addAll(toAdd);
 				for (Wrapper w : toAdd) {
 					if (core != null) {
-						w.getNode().setOtherPlugins(getRunningPluginsArray());
 						core.addPlugin(w.getNode());
 					}
 
@@ -57,6 +55,15 @@ public class DependencyManager {
 			} while (!toAdd.isEmpty());
 		} else {
 			idlePlugins.add(newWrapper);
+		}
+		setPlugins();
+	}
+	
+	
+	public void setPlugins(){
+		ArrayList<Plugin> plugins = getRunningPluginsArray();
+		for(Plugin p : plugins){
+			p.setOtherPlugins(plugins);
 		}
 	}
 
