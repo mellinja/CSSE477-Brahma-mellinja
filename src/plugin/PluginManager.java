@@ -18,7 +18,7 @@ public class PluginManager implements Runnable {
 	private HashMap<Path, Plugin> pathToPlugin;
 
 	public PluginManager() throws IOException {
-		this.manager = new DependencyManager();
+		this.manager = new DependencyManager(new PluginCore());
 		this.pathToPlugin = new HashMap<Path, Plugin>();
 		watchDir = new WatchDir(this, FileSystems.getDefault().getPath(
 				"plugins"), false);

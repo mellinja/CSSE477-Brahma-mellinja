@@ -9,20 +9,20 @@ public class DependencyManager {
 	PluginCore core;
 	ArrayList<Wrapper> runningPlugins;
 
-	public ArrayList<Wrapper> getIdlePlugins(){
+	public ArrayList<Wrapper> getIdlePlugins() {
 		return idlePlugins;
 	}
-	
-	public ArrayList<Wrapper> getRunningPlugins(){
+
+	public ArrayList<Wrapper> getRunningPlugins() {
 		return runningPlugins;
 	}
-	
+
 	public DependencyManager() {
 		runningPlugins = new ArrayList<Wrapper>();
 		idlePlugins = new ArrayList<Wrapper>();
 	}
-	
-	public DependencyManager(PluginCore core){
+
+	public DependencyManager(PluginCore core) {
 		runningPlugins = new ArrayList<Wrapper>();
 		idlePlugins = new ArrayList<Wrapper>();
 		this.core = core;
@@ -34,7 +34,9 @@ public class DependencyManager {
 		runningPlugins.add(newWrapper);
 
 		if (checkDependenciesAreMet(newWrapper)) {
-			if(core!=null)core.addPlugin(p);
+			if (core != null){
+				p.setOtherPlugins(getRunningPluginsArray());
+				core.addPlugin(p);}
 			ArrayList<Wrapper> toAdd;
 			do {
 				toAdd = new ArrayList<>();
@@ -45,7 +47,11 @@ public class DependencyManager {
 				idlePlugins.removeAll(toAdd);
 				runningPlugins.addAll(toAdd);
 				for (Wrapper w : toAdd) {
-					if(core != null) core.addPlugin(w.getNode());
+					if (core != null) {
+						w.getNode().setOtherPlugins(getRunningPluginsArray());
+						core.addPlugin(w.getNode());
+					}
+
 				}
 			} while (!toAdd.isEmpty());
 		} else {
@@ -84,14 +90,24 @@ public class DependencyManager {
 
 			Stack<Wrapper> children = new Stack<>();
 			children.addAll(wrapper.getChildren());
-			while(!children.isEmpty()){
+			while (!children.isEmpty()) {
 				Wrapper w = children.pop();
 				children.addAll(w.getChildren());
-				if(core != null) core.removePlugin(w.getNode().getId());
+				if (core != null)
+					core.removePlugin(w.getNode().getId());
 				idlePlugins.add(w);
 			}
 		}
-		if(core!=null)core.removePlugin(p.getId());
+		if (core != null)
+			core.removePlugin(p.getId());
+	}
+
+	public ArrayList<Plugin> getRunningPluginsArray() {
+		ArrayList<Plugin> retVal = new ArrayList<>();
+		for (Wrapper w : runningPlugins) {
+			retVal.add(w.getNode());
+		}
+		return retVal;
 	}
 
 	private class Wrapper {
