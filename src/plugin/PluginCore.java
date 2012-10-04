@@ -39,7 +39,7 @@ public class PluginCore {
 	private JPanel rightPane;
 	private JPanel leftPane;
 	// For holding registered plugin
-	private HashMap<String, Plugin> idToPlugin;
+	public HashMap<String, Plugin> idToPlugin;
 	private Plugin currentPluginRight;
 	private Plugin currentPluginLeft;
 	private Plugin currentTextPlugin;
@@ -324,6 +324,7 @@ public class PluginCore {
 		this.listModel.addElement(plugin.getId());
 		this.defaultLabel.setText("The " + plugin.getId()
 				+ " plugin has been recently added!");
+		
 	}
 
 	public void removePlugin(String id) {
