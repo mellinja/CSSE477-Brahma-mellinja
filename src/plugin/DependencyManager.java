@@ -104,6 +104,7 @@ public class DependencyManager {
 				if (core != null)
 					core.removePlugin(w.getNode().getId());
 				idlePlugins.add(w);
+				runningPlugins.remove(w);
 			}
 		}
 		if (core != null)
