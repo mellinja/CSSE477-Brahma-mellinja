@@ -9,10 +9,23 @@ public class DependencyManager {
 	PluginCore core;
 	ArrayList<Wrapper> runningPlugins;
 
+	public ArrayList<Wrapper> getIdlePlugins(){
+		return idlePlugins;
+	}
+	
+	public ArrayList<Wrapper> getRunningPlugins(){
+		return runningPlugins;
+	}
+	
 	public DependencyManager() {
 		runningPlugins = new ArrayList<Wrapper>();
 		idlePlugins = new ArrayList<Wrapper>();
-		this.core = new PluginCore();
+	}
+	
+	public DependencyManager(PluginCore core){
+		runningPlugins = new ArrayList<Wrapper>();
+		idlePlugins = new ArrayList<Wrapper>();
+		this.core = core;
 		core.start();
 	}
 
@@ -21,7 +34,7 @@ public class DependencyManager {
 		runningPlugins.add(newWrapper);
 
 		if (checkDependenciesAreMet(newWrapper)) {
-			core.addPlugin(p);
+			if(core!=null)core.addPlugin(p);
 			ArrayList<Wrapper> toAdd;
 			do {
 				toAdd = new ArrayList<>();
@@ -32,13 +45,12 @@ public class DependencyManager {
 				idlePlugins.removeAll(toAdd);
 				runningPlugins.addAll(toAdd);
 				for (Wrapper w : toAdd) {
-					core.addPlugin(w.getNode());
+					if(core != null) core.addPlugin(w.getNode());
 				}
 			} while (!toAdd.isEmpty());
 		} else {
 			idlePlugins.add(newWrapper);
 		}
-
 	}
 
 	public boolean checkDependenciesAreMet(Wrapper w) {
@@ -75,11 +87,11 @@ public class DependencyManager {
 			while(!children.isEmpty()){
 				Wrapper w = children.pop();
 				children.addAll(w.getChildren());
-				core.removePlugin(w.getNode().getId());
+				if(core != null) core.removePlugin(w.getNode().getId());
 				idlePlugins.add(w);
 			}
 		}
-		core.removePlugin(p.getId());
+		if(core!=null)core.removePlugin(p.getId());
 	}
 
 	private class Wrapper {
