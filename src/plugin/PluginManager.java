@@ -17,6 +17,7 @@ public class PluginManager implements Runnable {
 	private WatchDir watchDir;
 	private HashMap<Path, Plugin> pathToPlugin;
 	private ArrayList<Object> interfaceList = new ArrayList<>();
+	private URLClassLoader urlLoader;
 
 	public PluginManager() throws IOException {
 		this.manager = new DependencyManager(new PluginCore());
@@ -60,9 +61,17 @@ public class PluginManager implements Runnable {
 		String className = mainAttribs.getValue("Plugin-Class");
 		URL[] urls = new URL[] { bundlePath.toUri().toURL() };
 		for (URL u : urls) {
-			//System.out.println(u.toString());
+			System.out.println(u.toString());
+			System.out.flush();
 		}
-		ClassLoader classLoader = new URLClassLoader(urls);
+		ClassLoader classLoader;
+		if(urlLoader == null){
+			urlLoader = new URLClassLoader(urls);
+			classLoader = urlLoader;
+		}else{
+			classLoader = URLClassLoader.newInstance(urls, urlLoader);
+		}
+		
 		Class<?> pluginClass = classLoader.loadClass(className);
 		
 		String dependency = mainAttribs.getValue("Dependency");
@@ -71,7 +80,7 @@ public class PluginManager implements Runnable {
 		String interfaces = mainAttribs.getValue("Interfaces");
 		if(interfaces != null){
 			for(String s:interfaces.split("[,]")){
-				interfaceList.add(classLoader.loadClass(s));
+				System.out.println(classLoader.loadClass(s).isInterface());
 				System.out.println("Interface: " + s);
 			}
 		}
