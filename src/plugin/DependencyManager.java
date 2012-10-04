@@ -31,9 +31,10 @@ public class DependencyManager {
 
 	public void add(String[] dependencies, Plugin p) {
 		Wrapper newWrapper = new Wrapper(p, dependencies);
-		runningPlugins.add(newWrapper);
+
 
 		if (checkDependenciesAreMet(newWrapper)) {
+			runningPlugins.add(newWrapper);
 			if (core != null){
 				p.setOtherPlugins(getRunningPluginsArray());
 				core.addPlugin(p);}
@@ -110,7 +111,7 @@ public class DependencyManager {
 		return retVal;
 	}
 
-	private class Wrapper {
+	public static class Wrapper {
 		String[] dependencies;
 		Plugin node;
 		ArrayList<Wrapper> children;
@@ -119,6 +120,11 @@ public class DependencyManager {
 			children = new ArrayList<Wrapper>();
 			node = p;
 			dependencies = d;
+		}
+		
+		public Wrapper(Plugin p){
+			children = new ArrayList<Wrapper>();
+			dependencies = new String[]{};
 		}
 
 		public void addChild(Wrapper child) {
